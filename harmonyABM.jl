@@ -56,7 +56,7 @@ device_args[Lights]=Dict(
 dynamic_color(agent::Lights) = lift(x->x ? :orange : :black, agent.on)[]
 
 marker_dict[Lights] = 'L'
-color_dict[Lights] = :orange
+
 isstatic(agent::Lights) = true
 acts(agent::Lights) = false
 function is_interacted_with(agent::Lights)
@@ -141,7 +141,7 @@ begin
 end
 
 begin
-    model, fig = initialize(; num_agents=150, griddims=(70,70), plot=true, as=20)
+    model, fig = initialize(; num_agents=120, griddims=(30,30), plot=true, as=20)
     fig
 end
 dissect_components(g)
