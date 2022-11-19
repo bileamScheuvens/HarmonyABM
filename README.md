@@ -7,6 +7,17 @@ This of course begs the question how to even identify a network, for now we trea
 Unfortunately exploring this idea proved difficult, as public Datasets on the matter are sparce, leading to the decision to create my a synthetic one via simulation.
 
 
+
+
+
+## Demo
+Example simulation with 120 Devices on a 30x30 grid. Easily capable of much larger scenes but it looks staring at an ant hill.
+
+https://user-images.githubusercontent.com/36153336/202871155-ad5b3205-387a-4ab1-9ca3-2ad3f3e708ea.mp4
+
+Example resulting communities
+<img width="595" alt="graphdissection_demo" src="https://user-images.githubusercontent.com/36153336/202871157-ae786249-06e7-429c-9a77-5b3608547a4e.png">
+
 ## Execution
 The project is divided into two parts.
 1. **Simulation**
