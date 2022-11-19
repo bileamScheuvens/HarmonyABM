@@ -1,5 +1,4 @@
 # Agent based IoT Modelling
-robert-betschinger@outlook.de
 ***Disclaimer**: This was built as part of HackaTUM, excuse bad practices and sparse documentation.* 
 
 ## Motivation
