@@ -6,7 +6,7 @@ using InteractiveDynamics
 using GraphMakie
 using GraphMakie.NetworkLayout
 using DataStructures: DefaultDict
- function get_mac()
+function get_mac()
     "00:00:00:$(rand(10:99)):$(rand(10:99)):$(rand(10:99))"
 end
 function dissect_components(g)
@@ -19,7 +19,6 @@ function dissect_components(g)
     end
     fig
 end
-
 space = GridSpaceSingle((10,10); periodic=false)
 
 device_args = DefaultDict(nothing)
@@ -28,6 +27,7 @@ color_dict = DefaultDict(:black)
 abstract type DeviceAgent <: AbstractAgent end
 interacts(agent::DeviceAgent) = nothing
 is_interacted_with(agent::DeviceAgent) = nothing
+dynamic_color(agent::DeviceAgent) = color_dict[typeof(agent)]
 
 
 @agent Printer GridAgent{2} DeviceAgent begin
@@ -47,18 +47,19 @@ end
 
 @agent Lights GridAgent{2} DeviceAgent begin    
     macaddr::String
-    on::Bool
+    on::Observable{Bool}
 end
 device_args[Lights]=Dict(
-    "on"=>false
+    "on"=>Observable(false)
 )
+dynamic_color(agent::Lights) = lift(x->x ? :orange : :black, agent.on)[]
 
 marker_dict[Lights] = 'L'
 color_dict[Lights] = :orange
 isstatic(agent::Lights) = true
 acts(agent::Lights) = false
 function is_interacted_with(agent::Lights)
-    agent.on = !agent.on
+    agent.on[] = !agent.on[]
 end
 
 @agent Phone GridAgent{2} DeviceAgent begin
@@ -106,8 +107,7 @@ function initialize(;num_agents=20, griddims=(15,15), plot=false, acting_chance=
     fig = nothing
     if plot
         getmarker(x) = marker_dict[typeof(x)]
-        getcolor(x) = color_dict[typeof(x)]
-        fig, ax, abmops = abmplot(model; ac=getcolor, as=20, am=getmarker, agent_step!)
+        fig, ax, abmops = abmplot(model; ac=dynamic_color, as=20, am=getmarker, agent_step!)
     end
     model, fig
 end
@@ -143,5 +143,3 @@ begin
     model, fig = initialize(; num_agents=200, griddims=(30,30), plot=true )
     fig
 end
-
-model[63]
