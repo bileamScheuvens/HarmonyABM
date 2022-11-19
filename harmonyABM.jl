@@ -10,11 +10,14 @@ using DataStructures: DefaultDict
     "00:00:00:$(rand(10:99)):$(rand(10:99)):$(rand(10:99))"
 end
 function dissect_components(g)
-    plotlist = []
-    for c in connected_components(g)
-        length(c) > 0 ? push!(plotlist, graphplot(induced_subgraph(g, c)[1]; layout=Stress(dim=2))) : nothing
+    fig = Figure(; resolution=(1200, 900))
+    components = filter(x->length(x)>1,connected_components(g))
+    nrow = round(length(components)^0.5)
+    for (i,c) in enumerate(components)
+        ax = Axis(fig[Int(i%nrow), Int(fld(i, nrow))])
+        graphplot!(ax,induced_subgraph(g, c)[1]; layout=Stress(dim=2))
     end
-    plotlist
+    fig
 end
 
 space = GridSpaceSingle((10,10); periodic=false)
@@ -98,7 +101,7 @@ function agent_step!(agent, model)
 end
 
 begin
-    model, fig = initialize(; num_agents=200, griddims=(30,30))
+    model, fig = initialize(; num_agents=200, griddims=(50,50))
     for _ in 1:20
         step!(model,agent_step!)
     end
@@ -109,10 +112,4 @@ begin
     model, fig = initialize(; num_agents=200, griddims=(30,30), plot=true )
     fig
 end
-for fig in dissect_components(g)
-    fig
-end
-
-c = connected_components(g)[1]
-g2 = induced_subgraph(g,c)[1]
-graphplot(induced_subgraph(g,c)[1]; layout=Stress(dim=2))
+dissect_components(g)
