@@ -6,6 +6,7 @@ using InteractiveDynamics
 using GraphMakie
 using GraphMakie.NetworkLayout
 using DataStructures: DefaultDict
+using StatsBase:sample,Weights
 function get_mac()
     "00:00:00:$(rand(10:99)):$(rand(10:99)):$(rand(10:99))"
 end
@@ -78,7 +79,7 @@ acts(agent::Phone) = true
 function interacts(agent::Phone)
     agent.jobs_sent += 1
 end
-function interacted_with(agent::Phone)
+function is_interacted_with(agent::Phone)
     agent.sms_received += 1
 end
 
@@ -91,14 +92,14 @@ acts(agent::DesktopPC) = true
 
 agenttypes = [Printer, Lights, Phone, DesktopPC]
 
-function initialize(;num_agents=20, griddims=(15,15), plot=false, acting_chance=0.5)
+function initialize(;num_agents=20, griddims=(15,15), plot=false, weights=[1,2,2,1],acting_chance=0.5, as=10)
     global act_chance = acting_chance
     space = GridSpace(griddims, periodic=false)
     model = ABM(Union{agenttypes...}, space; warn=false)
     global g = DiGraph()
     add_vertices!(g, num_agents)
     for i in 1:num_agents
-        agenttype = agenttypes[rand(1:end)]
+        agenttype = sample(agenttypes, Weights(weights), 1)[1]
         args = device_args[agenttype]
         agent = args !== nothing ? agenttype(i, (1,1), get_mac(), values(args)...) : agenttype(i, (1,1), get_mac()) 
         add_agent_single!(agent, model)
@@ -107,7 +108,7 @@ function initialize(;num_agents=20, griddims=(15,15), plot=false, acting_chance=
     fig = nothing
     if plot
         getmarker(x) = marker_dict[typeof(x)]
-        fig, ax, abmops = abmplot(model; ac=dynamic_color, as=20, am=getmarker, agent_step!)
+        fig, ax, abmops = abmplot(model; ac=dynamic_color, as=as, am=getmarker, agent_step!)
     end
     model, fig
 end
@@ -140,6 +141,7 @@ begin
 end
 
 begin
-    model, fig = initialize(; num_agents=200, griddims=(30,30), plot=true )
+    model, fig = initialize(; num_agents=150, griddims=(70,70), plot=true, as=20)
     fig
 end
+dissect_components(g)
